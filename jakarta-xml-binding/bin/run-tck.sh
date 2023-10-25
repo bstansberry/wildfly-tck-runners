@@ -26,7 +26,11 @@ fail() {
 
 addToClassPath() {
     if [ -d "${1}" ]; then
-        TCK_CLASS_PATH="${TCK_CLASS_PATH}$(find "${1}" -name "*.jar" | tr '\n' : )"
+        if [ -z "${2}" ]; then
+            TCK_CLASS_PATH="${TCK_CLASS_PATH}$(find "${1}" -name "*.jar" | tr '\n' : )"
+        else
+            TCK_CLASS_PATH="${TCK_CLASS_PATH}$(find "${1}" -name "${2}" | tr '\n' : )"
+        fi
     else
         echo "Directory ${1} does not exist."
     fi
@@ -144,7 +148,9 @@ BASE_MODULE_DIR="${JBOSS_HOME}/modules/system/layers/base"
 # JAXB API
 TCK_CLASS_PATH=""
 addToClassPath "${BASE_MODULE_DIR}/jakarta/xml/bind/api/main/"
-#addToClassPath "${BASE_MODULE_DIR}/org/glassfish/jaxb/main/"
+addToClassPath "${BASE_MODULE_DIR}/org/glassfish/jaxb/main/" "jaxb-xjc*.jar"
+#addToClassPath "${BASE_MODULE_DIR}/org/glassfish/jaxb/main/" "istack-commons-runtime-*.jar"
+#addToClassPath "${BASE_MODULE_DIR}/org/glassfish/jaxb/main/" "txw2*.jar"
 addToClassPath "${BASE_MODULE_DIR}/jakarta/activation/api/main"
 #addToClassPath "${BASE_MODULE_DIR}/org/eclipse/angus/activation/main"
 # Required for the com.sun.tools.jxc.SchemaGenerator. The options look for -cp or -classpath passed to the entry point.
@@ -167,8 +173,9 @@ if [ ! -f "${CHECKER_JAR}" ]; then
     wget --progress=bar:force --no-cache https://repo1.maven.org/maven2/org/checkerframework/checker/3.5.0/checker-3.5.0.jar -O "${CHECKER_JAR}"
 fi
 wget --progress=bar:force --no-cache https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb-impl/4.0.4/jaxb-impl-4.0.4.jar -O "${JAXB_HOME}/jaxb-impl.jar"
+CLASSPATH="${JAXB_HOME}/jaxb-impl.jar:${CLASSPATH}"
 cp ${verboseArgs} "${CHECKER_JAR}" "${JAXB_HOME}/checker.jar"
-CLASSPATH="${JAXB_HOME}/checker.jar:${JAXB_HOME}/jaxb-impl.jar:${CLASSPATH}"
+CLASSPATH="${JAXB_HOME}/checker.jar:${CLASSPATH}"
 export CLASSPATH
 
 cd "${TCK_HOME}"
