@@ -148,11 +148,12 @@ BASE_MODULE_DIR="${JBOSS_HOME}/modules/system/layers/base"
 # JAXB API
 TCK_CLASS_PATH=""
 addToClassPath "${BASE_MODULE_DIR}/jakarta/xml/bind/api/main/"
-addToClassPath "${BASE_MODULE_DIR}/org/glassfish/jaxb/main/" "jaxb-xjc*.jar"
+addToClassPath "${BASE_MODULE_DIR}/org/glassfish/jaxb/main/"
+#addToClassPath "${BASE_MODULE_DIR}/org/glassfish/jaxb/main/" "jaxb-xjc*.jar"
 #addToClassPath "${BASE_MODULE_DIR}/org/glassfish/jaxb/main/" "istack-commons-runtime-*.jar"
 #addToClassPath "${BASE_MODULE_DIR}/org/glassfish/jaxb/main/" "txw2*.jar"
 addToClassPath "${BASE_MODULE_DIR}/jakarta/activation/api/main"
-#addToClassPath "${BASE_MODULE_DIR}/org/eclipse/angus/activation/main"
+addToClassPath "${BASE_MODULE_DIR}/org/eclipse/angus/activation/main"
 # Required for the com.sun.tools.jxc.SchemaGenerator. The options look for -cp or -classpath passed to the entry point.
 # However, the TCK runner does not pass that argument so it falls back to the CLASSPATH environment variable.
 CLASSPATH="${TCK_CLASS_PATH}"
@@ -172,8 +173,8 @@ CHECKER_JAR="${WORK_DIR}/checker.jar"
 if [ ! -f "${CHECKER_JAR}" ]; then
     wget --progress=bar:force --no-cache https://repo1.maven.org/maven2/org/checkerframework/checker/3.5.0/checker-3.5.0.jar -O "${CHECKER_JAR}"
 fi
-wget --progress=bar:force --no-cache https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb-impl/4.0.4/jaxb-impl-4.0.4.jar -O "${JAXB_HOME}/jaxb-impl.jar"
-CLASSPATH="${JAXB_HOME}/jaxb-impl.jar:${CLASSPATH}"
+#wget --progress=bar:force --no-cache https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb-impl/4.0.4/jaxb-impl-4.0.4.jar -O "${JAXB_HOME}/jaxb-impl.jar"
+#CLASSPATH="${JAXB_HOME}/jaxb-impl.jar:${CLASSPATH}"
 cp ${verboseArgs} "${CHECKER_JAR}" "${JAXB_HOME}/checker.jar"
 CLASSPATH="${JAXB_HOME}/checker.jar:${CLASSPATH}"
 export CLASSPATH
@@ -208,13 +209,13 @@ jck.env.jaxb.agent.useAgentPortDefault=Yes
 jck.env.jaxb.schemagen.run.schemagenWrapperClass=com.sun.jaxb_tck.lib.SchemaGen
 jck.env.jaxb.schemagen.skipJ2XOptional=Yes
 jck.env.jaxb.testExecute.cmdAsFile=${JAVA_HOME}/bin/java
-jck.env.jaxb.testExecute.otherEnvVars=JBOSS_HOME\=${JBOSS_HOME} JAXB_HOME\=${JAXB_HOME} JAVA_HOME\=${JAVA_HOME} CLASSPATH\=${CLASSPATH}
-jck.env.jaxb.testExecute.otherOpts=-Xmx512m -Xms256m
+jck.env.jaxb.testExecute.otherEnvVars=JBOSS_HOME\=${JBOSS_HOME} JAXB_HOME\=${TCK_HOME}/client JAVA_HOME\=${JAVA_HOME}
+jck.env.jaxb.testExecute.otherOpts=-Xmx512m -Xms256m ${CLASSPATH}
 jck.env.jaxb.xsd_compiler.defaultOperationMode=Yes
 jck.env.jaxb.xsd_compiler.run.compilerWrapperClass=com.sun.jaxb_tck.lib.SchemaCompiler
 jck.env.jaxb.xsd_compiler.skipValidationOptional=Yes
 jck.env.testPlatform.local=Yes
-jck.env.testPlatform.multiJVM=Yes
+jck.env.testPlatform.multiJVM=No
 jck.excludeList.customFiles=${TCK_HOME}/lib/jaxb_tck40.jtx
 jck.excludeList.excludeListType=custom
 jck.excludeList.latestAutoCheck=No
@@ -227,10 +228,6 @@ jck.priorStatus.status=
 ${TEST_INFO}
 jck.tests.treeOrFile=tree
 jck.timeout.timeout=2
-jck.env.jaxb.classes.needJaxbClasses=Yes
-jck.env.jaxb.classes.jaxbClasses=$(echo "${CLASSPATH}" | tr ':' ' ')
-jck.env.jaxb.schemagen.run.jxcCmd=/bin/sh ${TCK_HOME}/linux/bin/schemagen.sh
-jck.env.jaxb.xsd_compiler.testCompile.xjcCmd=/bin/sh ${TCK_HOME}/linux/bin/xjc.sh
 
 " > "${TCK_HOME}"/default_configuration.jti
 
